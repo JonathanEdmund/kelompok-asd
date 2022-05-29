@@ -13,11 +13,10 @@ public class Kelompok {
 
     private static class Server{
         String name;
-        int index, capacity, current;
+        int capacity, current;
 
-        Server(String n, int i, int c, int a){
+        Server(String n, int c, int a){
             name = n;
-            index = i;
             capacity = c;
             current = a;
         }
@@ -25,6 +24,11 @@ public class Kelompok {
         public boolean isFull(){
             return current == capacity;
         }
+
+        public String getCurrentCapacity(){
+            return "("+ current + "/" + capacity + ")";
+        }
+
     }
 
     private static class UserCredentials {
@@ -40,7 +44,6 @@ public class Kelompok {
     private static class User {
         UserCredentials credential;
         Coordinate coordinate;
-        // String currentServer = "null";
         int serverIndex;
 
         User(String username, String password, Coordinate coordinate, int serverIndex){
@@ -48,6 +51,15 @@ public class Kelompok {
             this.coordinate = coordinate;
             this.serverIndex = serverIndex;
         }
+
+        public String getServer(){
+            return serverList.get(serverIndex).name + serverList.get(serverIndex).getCurrentCapacity();
+        }
+
+        public Coordinate getCoordinate(){
+            return coordinate;
+        }
+
     }
 
     private static class Coordinate {
@@ -130,7 +142,7 @@ public class Kelompok {
 
             nu = scanner.nextInt();
 
-            serverList.add(new Server(name, i, c, nu));
+            serverList.add(new Server(name, c, nu));
 
         }
 
@@ -195,11 +207,6 @@ public class Kelompok {
             double min = a[0];
             int minIndex = -1; // v = 6
 
-            // print tabel dijsktra (hapus nanti)
-            // for(int j = 0; j < v; j++){
-            //     System.out.println(j + " " + a[j]);
-            // }
-
             // mencari server terdekat yang tidak penuh
             ArrayList<Integer> route = new ArrayList<>();
             for(int j = 0; j<v-1; j++){
@@ -224,7 +231,7 @@ public class Kelompok {
             // Output
             Server connected = serverList.get(minIndex);
             System.out.println("Current server: " + connected.name 
-            + "(" + connected.current + "/" + connected.capacity + ")" );
+            + connected.getCurrentCapacity() );
 
             System.out.print("Route: ");
             System.out.print("USER");
@@ -242,17 +249,29 @@ public class Kelompok {
     static void removeUser() {
         System.out.println("User List: "); // list user dalam servernya
         for (int i = 0; i<userList.size(); i++){
-            System.out.println( (i+1) + ". " + userList.get(i).credential.username);
+            System.out.println( (i+1) + ". " + userList.get(i).credential.username  + "\t"
+            + userList.get(i).getServer());
         }
         System.out.print("Pilih user (angka): ");
         int option = scanner.nextInt() - 1;
-
+        System.out.println(userList.get(option).credential.password);
         System.out.print("Password: ");
         String password = scanner.next();
 
-        if (userList.get(option).credential.password == password){
-            userList.remove(userList.get(option));
-        } 
+        if (password.equals(userList.get(option).credential.password)){
+            System.out.println("Correct Password");
+            User user = userList.get(option);
+
+            // decrement server capacity
+            serverList.get(user.serverIndex).current--;
+
+            // remove user from userList
+            userList.remove(option);
+            
+        } else {
+            System.out.println("Incorrect Password");
+        }
+
     }
 
 }
