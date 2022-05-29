@@ -42,7 +42,6 @@ public class WeightedGraph {
 
     public static double[] dijkstra(int V, ArrayList<ArrayList<AdjListNode>> graph, int src) {
         double[] distance = new double[V]; 
-        // int[] from = new int[V];
 
         for (int i = 0; i < V; i++) {
             distance[i] = Double.MAX_VALUE;
@@ -53,7 +52,6 @@ public class WeightedGraph {
         PriorityQueue<AdjListNode> pq = new PriorityQueue<>((v1, v2) -> (int)(v1.getWeight() - v2.getWeight()));
 
         pq.add(new AdjListNode(src, 0));
-        // from[src] = -1;
   
         while (pq.size() > 0) {
             AdjListNode current = pq.poll();
@@ -65,24 +63,12 @@ public class WeightedGraph {
 
                     pq.add(new AdjListNode(n.getVertex(),distance[n.getVertex()]));
 
-                    // from[current.getVertex()] = n.getVertex();
                 }
             }
         }
-        // System.out.print("Route: ");
-        // printRoute(from, src);
-        // System.out.println(src);
 
         // return server/node
         return distance;
-    }
-
-    public static void printRoute(int[] from, int dst){
-        if(from[dst] != 0){
-            printRoute(from, from[dst]);
-        }
-
-        System.out.print(from[dst] + " -> ");
     }
 
     public double shortestPath(int i, int j) {

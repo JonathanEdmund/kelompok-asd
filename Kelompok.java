@@ -164,7 +164,7 @@ public class Kelompok {
         
             password = scanner.next();
 
-            System.out.println("Coordinate: ");
+            System.out.print("Coordinate: ");
 
             x = scanner.nextInt();
             y = scanner.nextInt();
@@ -196,23 +196,26 @@ public class Kelompok {
             int minIndex = -1; // v = 6
 
             // print tabel dijsktra (hapus nanti)
-            for(int j = 0; j < v; j++){
-                System.out.println(j + " " + a[j]);
-            }
+            // for(int j = 0; j < v; j++){
+            //     System.out.println(j + " " + a[j]);
+            // }
 
             // mencari server terdekat yang tidak penuh
             ArrayList<Integer> route = new ArrayList<>();
             for(int j = 0; j<v-1; j++){
                 //find minimum distance when server capacity is not full
-                if(min > a[j] && !serverList.get(j).isFull()) {
-                    min = a[j]; 
-                    minIndex = j;
-                    route.add(minIndex);
-                } else if(min > a[j] && serverList.get(j).isFull()){
-                    route.add(j);
+                if(min > a[j]) {
+                    if(!serverList.get(j).isFull()){
+                        min = a[j]; 
+                        minIndex = j;
+                    }else {
+                        // if server is full, add index to route
+                        route.add(j);
+                    }
                 }
             }   
 
+            route.add(minIndex);
 
             // add user to userList + increment server current
             userList.add(new User(username, password, src, minIndex));
@@ -223,9 +226,11 @@ public class Kelompok {
             System.out.println("Current server: " + connected.name 
             + "(" + connected.current + "/" + connected.capacity + ")" );
 
-            System.out.println("Route: ");
-            for(int r: route) System.out.println(r + " ");
-            
+            System.out.print("Route: ");
+            System.out.print("USER");
+            for(int r: route) System.out.print(" -> "+ serverList.get(r).name);
+            System.out.println("");
+
             // remove vertex user dari graph
             G.graph.remove(v-1);
             G.V--;
@@ -235,7 +240,7 @@ public class Kelompok {
     }
 
     static void removeUser() {
-        System.out.println("list user //edit"); // list user dalam servernya
+        System.out.println("User List: "); // list user dalam servernya
         for (int i = 0; i<userList.size(); i++){
             System.out.println( (i+1) + ". " + userList.get(i).credential.username);
         }
