@@ -1,12 +1,23 @@
 import java.util.ArrayList;
 
+
 public class User {
-    UserCredentials credential;
+    AuthCredentials credential;
     Coordinate coordinate;
     int serverIndex;
 
+    public static class AuthCredentials {
+        public String username;
+        public String password;
+
+        public AuthCredentials(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
+    }
+
     User(String username, String password, Coordinate coordinate, int serverIndex){
-        credential = new UserCredentials(username, password);
+        credential = new AuthCredentials(username, password);
         this.coordinate = coordinate;
         this.serverIndex = serverIndex;
     }
@@ -18,14 +29,4 @@ public class User {
         public Coordinate getCoordinate(){
             return coordinate;
         }
-}
-
-class UserCredentials {
-    public String username;
-    public String password;
-
-    public UserCredentials(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
 }
