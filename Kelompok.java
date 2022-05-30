@@ -79,6 +79,7 @@ public class Kelompok {
     private static boolean handle() {
         int code;
 
+        ClearConsole();
         System.out.println("PROGRAM FOR FINDING THE NEAREST SERVER");
         System.out.println("==========================================");
         System.out.println();
@@ -92,17 +93,21 @@ public class Kelompok {
 
         switch (code){
             case 1:
+                ClearConsole();
                 addServer();
                 break;
             case 2:
+                ClearConsole();
                 addUser();
                 break;
             case 3:
+                ClearConsole();
                 removeUser();
                 break;
             case 4:
                 return false;
-            default:
+                default:
+                ClearConsole();
                 System.out.println("Error! wrong input, please choose between 1, 2, 3, or 4! ");
         }
       return true;
@@ -136,7 +141,7 @@ public class Kelompok {
 
             points.add(new Coordinate(x, y));
 
-            System.out.println("Enter server capacity + number of users (0 if none): ");
+            System.out.print("Enter server capacity + number of users (0 if none): ");
             
             c = scanner.nextInt();
 
@@ -188,7 +193,7 @@ public class Kelompok {
             int v = G.V; // current vertex
             
 
-            // iterasi mencari server terdekat dr user
+            // iterasi mencari server terdekat dari user
             double minDistance = Double.MAX_VALUE; int serverIndex = -1;
             for(int k = 0; k < v-1; k++){
                 double distance = Coordinate.distance(points.get(k), src);
@@ -247,15 +252,18 @@ public class Kelompok {
     }
 
     static void removeUser() {
-        System.out.println("User List: "); // list user dalam servernya
+        // print user list
+        System.out.println("User List: "); 
         for (int i = 0; i<userList.size(); i++){
             System.out.println( (i+1) + ". " + userList.get(i).credential.username  + "\t"
             + userList.get(i).getServer());
         }
+        // tambah coordinat
+        
         System.out.print("Pilih user (angka): ");
         int option = scanner.nextInt() - 1;
+
         System.out.println(userList.get(option).credential.password);
-        System.out.print("Password: ");
         String password = scanner.next();
 
         if (password.equals(userList.get(option).credential.password)){
@@ -274,6 +282,24 @@ public class Kelompok {
 
     }
 
+    public static void ClearConsole(){
+        try{
+            String operatingSystem = System.getProperty("os.name"); //Check the current operating system
+              
+            if(operatingSystem.contains("Windows")){        
+                ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "cls");
+                Process startProcess = pb.inheritIO().start();
+                startProcess.waitFor();
+            } else {
+                ProcessBuilder pb = new ProcessBuilder("clear");
+                Process startProcess = pb.inheritIO().start();
+
+                startProcess.waitFor();
+            } 
+        }catch(Exception e){
+            System.out.println(e);
+        }
+    }
 }
         
 
