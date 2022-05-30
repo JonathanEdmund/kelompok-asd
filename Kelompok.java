@@ -11,70 +11,6 @@ public class Kelompok {
 
     public static void main(String[] args) { while (handle()){} }
 
-    private static class Server{
-        String name;
-        int capacity, current;
-
-        Server(String n, int c, int a){
-            name = n;
-            capacity = c;
-            current = a;
-        }
-
-        public boolean isFull(){
-            return current == capacity;
-        }
-
-        public String getCurrentCapacity(){
-            return "("+ current + "/" + capacity + ")";
-        }
-
-    }
-
-    private static class UserCredentials {
-        public String username;
-        public String password;
-
-        public UserCredentials(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-    }
-
-    private static class User {
-        UserCredentials credential;
-        Coordinate coordinate;
-        int serverIndex;
-
-        User(String username, String password, Coordinate coordinate, int serverIndex){
-            credential = new UserCredentials(username, password);
-            this.coordinate = coordinate;
-            this.serverIndex = serverIndex;
-        }
-
-        public String getServer(){
-            return serverList.get(serverIndex).name + serverList.get(serverIndex).getCurrentCapacity();
-        }
-
-        public Coordinate getCoordinate(){
-            return coordinate;
-        }
-
-    }
-
-    private static class Coordinate {
-        public int x;
-        public int y;
-
-        public Coordinate(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public static double distance(Coordinate v1, Coordinate v2){
-            return Math.hypot(v1.x - v2.x, v1.y - v2.y);
-        }
-    }
 
     private static boolean handle() {
         int code;
@@ -85,8 +21,8 @@ public class Kelompok {
         System.out.println();
         System.out.println("Please select a menu: ");
         System.out.println(" 1. Input server/BTS ");
-        System.out.println(" 2. Sign in");
-        System.out.println(" 3. Sign out");
+        System.out.println(" 2. Add user");
+        System.out.println(" 3. Remove user");
         System.out.println(" 4. Exit");
 
         code = scanner.nextInt();
@@ -98,17 +34,29 @@ public class Kelompok {
                 break;
             case 2:
                 ClearConsole();
+                if(G == null){
+                    System.out.println("Graph is empty. Please add a server.");
+                    scanner.nextLine();
+                    waitForEnter();
+                    break;
+                }
                 addUser();
                 break;
             case 3:
                 ClearConsole();
+                if(userList.isEmpty()) {
+                    System.out.println("User not found. Please add a user.");
+                    scanner.nextLine();
+                    waitForEnter();
+                    break;
+                }
                 removeUser();
                 break;
             case 4:
                 return false;
                 default:
                 ClearConsole();
-                System.out.println("Error! wrong input, please choose between 1, 2, 3, or 4! ");
+                System.out.println("Error! Wrong input, please choose between 1, 2, 3, or 4! ");
         }
       return true;
     }
@@ -121,6 +69,8 @@ public class Kelompok {
 
         System.out.print("Please enter the number of connected server/BTS pairs: ");
         E = scanner.nextInt(); // E = Jumlah edge
+
+        scanner.nextLine();
         System.out.println();
 
         G = new WeightedGraph(V); // G = graph
@@ -130,24 +80,26 @@ public class Kelompok {
             String name;
 
             System.out.print("Enter server "+ (i+1) + " name: ");
-            name = scanner.next();
+            name = scanner.nextLine();
 
-            System.out.print("Enter server coordinates :" );
+            System.out.print("Enter server coordinates: " );
 
             x = scanner.nextInt();
-
 
             y = scanner.nextInt();
 
             points.add(new Coordinate(x, y));
 
-            System.out.print("Enter server capacity + number of users (0 if none): ");
+            System.out.print("Enter server capacity and number of users: ");
             
             c = scanner.nextInt();
 
             nu = scanner.nextInt();
+            scanner.nextLine();
 
             serverList.add(new Server(name, c, nu));
+
+            System.out.println();
 
         }
 
@@ -157,11 +109,15 @@ public class Kelompok {
             System.out.print("Enter the connected server/BTS pair: ");
 
             G.addEdge(
-                u = scanner.nextInt(),
-                v = scanner.nextInt(),
-                Math.hypot(points.get(u).x - points.get(v).x, points.get(u).y - points.get(v).y)
+                u = scanner.nextInt()-1,
+                v = scanner.nextInt()-1,
+                // Math.hypot(points.get(u).x - points.get(v).x, points.get(u).y - points.get(v).y)
+                Coordinate.distance(points.get(u), points.get(v))
             );
         }
+        
+        scanner.nextLine();
+        waitForEnter();
     }
 
         
@@ -171,26 +127,26 @@ public class Kelompok {
 
         System.out.print("Enter the number of user: ");
         Q = scanner.nextInt();
+        scanner.nextLine();
 
         for(int i = 0; i < Q; i++) {
             System.out.print("Username: ");
 
-            username = scanner.next();
+            username = scanner.nextLine();
 
             System.out.print("Password: ");
         
-            password = scanner.next();
+            password = scanner.nextLine();
 
             System.out.print("Coordinate: ");
 
             x = scanner.nextInt();
             y = scanner.nextInt();
-
+            
             Coordinate src = new Coordinate(x, y);
 
-            // WeightedGraph g = (WeightedGraph)G.clone();
             G.addVertex(new ArrayList<>());
-            int v = G.V; // current vertex
+            int v = G.V; // vertex size
             
 
             // iterasi mencari server terdekat dari user
@@ -206,16 +162,16 @@ public class Kelompok {
             // add edge baru antara user dengan server terdekat
             G.addEdge(v-1, serverIndex, minDistance);
 
-
+            // store dijkstra graph
             double[] a = WeightedGraph.dijkstra(v , G.graph, v-1);
 
             double min = a[0];
-            int minIndex = -1; // v = 6
+            int minIndex = 0; // v = 6
 
             // mencari server terdekat yang tidak penuh
             ArrayList<Integer> route = new ArrayList<>();
             for(int j = 0; j<v-1; j++){
-                //find minimum distance when server capacity is not full
+                // find minimum distance when server capacity is not full
                 if(min > a[j]) {
                     if(!serverList.get(j).isFull()){
                         min = a[j]; 
@@ -234,6 +190,7 @@ public class Kelompok {
             serverList.get(minIndex).current++;
             
             // Output
+            System.out.println();
             Server connected = serverList.get(minIndex);
             System.out.println("Current server: " + connected.name 
             + connected.getCurrentCapacity() );
@@ -246,8 +203,11 @@ public class Kelompok {
             // remove vertex user dari graph
             G.graph.remove(v-1);
             G.V--;
+
+            System.out.println();
+            scanner.nextLine();
         }
-        
+        waitForEnter();
 
     }
 
@@ -256,15 +216,17 @@ public class Kelompok {
         System.out.println("User List: "); 
         for (int i = 0; i<userList.size(); i++){
             System.out.println( (i+1) + ". " + userList.get(i).credential.username  + "\t"
-            + userList.get(i).getServer());
+            + userList.get(i).getServer(serverList));
         }
-        // tambah coordinat
         
-        System.out.print("Pilih user (angka): ");
+        System.out.print("Select user : ");
         int option = scanner.nextInt() - 1;
 
+        scanner.nextLine();
+
         System.out.println(userList.get(option).credential.password);
-        String password = scanner.next();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
 
         if (password.equals(userList.get(option).credential.password)){
             System.out.println("Correct Password");
@@ -276,10 +238,19 @@ public class Kelompok {
             // remove user from userList
             userList.remove(option);
             
+            waitForEnter();
+
         } else {
             System.out.println("Incorrect Password");
+
+            waitForEnter();
         }
 
+    }
+
+    public static void waitForEnter(){
+        System.out.print("Press Enter to continue . . .");
+        scanner.nextLine();
     }
 
     public static void ClearConsole(){
