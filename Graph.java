@@ -1,12 +1,12 @@
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class WeightedGraph {
+public class Graph {
     public ArrayList<ArrayList<AdjListNode>> graph = new ArrayList<>();
     public double[][] _shortestPath = null;
     public int V;
 
-    public WeightedGraph(int v){
+    public Graph(int v){
         V = v;
 
         for(int i = 0; i < v; i++){
@@ -69,38 +69,6 @@ public class WeightedGraph {
 
         // return server/node
         return distance;
-    }
-
-    public double shortestPath(int i, int j) {
-        if (_shortestPath == null) {
-            floydWarshall();
-        }
-
-        return _shortestPath[i][j];
-    }
-
-    protected void floydWarshall() {
-        _shortestPath = new double[V][V];
-
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
-                _shortestPath[i][j] = 1e9+7;
-            }
-        }
-
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < graph.get(i).size(); j++) {
-                _shortestPath[i][graph.get(i).get(j).getVertex()] = graph.get(i).get(j).getWeight();
-            }
-        }
-
-        for (int i = 0; i < V; i++) {
-            for (int k = 0; k < V; k++) {
-                for (int j = 0; j < V; j++) {
-                    _shortestPath[i][k] = Math.min(_shortestPath[i][k], _shortestPath[i][j]+_shortestPath[j][k]);
-                }
-            }
-        }
     }
 }
 

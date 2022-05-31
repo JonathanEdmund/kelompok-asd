@@ -1,16 +1,15 @@
-import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
     static ArrayList<User> userList = new ArrayList<>();
     static ArrayList<Server> serverList = new ArrayList<>();
     static ArrayList<Coordinate> points = new ArrayList<>();
     static Scanner scanner = new Scanner(System.in);
-    static WeightedGraph G;
+    static Graph graph;
 
 
-    public static void main(String[] args) { while (handle()){} }
-
+    public static void main(String[] args) { while (handle()) { } }
 
     private static boolean handle() {
         int code;
@@ -31,49 +30,65 @@ public class Main {
             case 1:
                 ClearConsole();
                 addServer();
+
                 break;
             case 2:
                 ClearConsole();
-                if(G == null){
+
+                if(graph == null) {
                     System.out.println("Graph is empty. Please add a server.");
+
                     scanner.nextLine();
                     waitForEnter();
+
                     break;
                 }
+
                 addUser();
+
                 break;
             case 3:
                 ClearConsole();
+
                 if(userList.isEmpty()) {
                     System.out.println("User not found. Please add a user.");
+    
                     scanner.nextLine();
                     waitForEnter();
+
                     break;
                 }
+
                 removeUser();
+
                 break;
             case 4:
                 return false;
-                default:
+            default:
                 ClearConsole();
+
                 System.out.println("Error! Wrong input, please choose between 1, 2, 3, or 4! ");
         }
-      return true;
+
+        return true;
     }
 
     static void addServer() {
         int V, E;
 
         System.out.print("Please add the number of server/BTS: ");
+
         V = scanner.nextInt(); // V = jumlah server dan BTS
 
         System.out.print("Please enter the number of connected server/BTS pairs: ");
+
         E = scanner.nextInt(); // E = Jumlah edge
 
         scanner.nextLine();
+
         System.out.println();
 
-        G = new WeightedGraph(V); // G = graph
+        graph = new Graph(V); // G = graph
 
         for (int i = 0; i < V; i++) {
             int x, y, c, nu;
@@ -95,6 +110,7 @@ public class Main {
             c = scanner.nextInt();
 
             nu = scanner.nextInt();
+
             scanner.nextLine();
 
             serverList.add(new Server(name, c, nu));
@@ -106,12 +122,13 @@ public class Main {
 
         for (int i = 0; i < E; i++) {
             int u, v;
+
             System.out.print("Enter the connected server/BTS pair: ");
 
-            G.addEdge(
+            graph.addEdge(
                 u = scanner.nextInt()-1,
                 v = scanner.nextInt()-1,
-                Coordinate.distance(points.get(u), points.get(v))
+                points.get(u).distance(points.get(v))
             );
         }
         
@@ -125,10 +142,13 @@ public class Main {
         int Q, x, y;
 
         System.out.print("Enter the number of user: ");
+
         Q = scanner.nextInt();
+
         scanner.nextLine();
 
         for(int i = 0; i < Q; i++) {
+
             System.out.print("Username: ");
 
             username = scanner.nextLine();
@@ -144,14 +164,17 @@ public class Main {
             
             Coordinate src = new Coordinate(x, y);
 
-            G.addVertex(new ArrayList<>());
-            int v = G.V; // vertex size
+            graph.addVertex(new ArrayList<>());
+            int v = graph.V; // vertex size
             
 
-            // iterasi mencari server terdekat dari user
-            double minDistance = Double.MAX_VALUE; int serverIndex = -1;
+            // Iterasi mencari server terdekat dari user
+            double minDistance = Double.MAX_VALUE;
+            int serverIndex = -1;
+
             for(int k = 0; k < v-1; k++){
-                double distance = Coordinate.distance(points.get(k), src);
+                double distance = src.distance(points.get(k));
+    
                 if(minDistance > distance){
                     minDistance = distance;
                     serverIndex = k;
@@ -159,23 +182,24 @@ public class Main {
             }
 
             // add edge baru antara user dengan server terdekat
-            G.addEdge(v-1, serverIndex, minDistance);
+            graph.addEdge(v-1, serverIndex, minDistance);
 
             // store dijkstra graph
-            double[] a = WeightedGraph.dijkstra(v , G.graph, v-1);
+            double[] a = Graph.dijkstra(v , graph.graph, v-1);
 
             double min = a[0];
             int minIndex = 0; // v = 6
 
             // mencari server terdekat yang tidak penuh
             ArrayList<Integer> route = new ArrayList<>();
-            for(int j = 0; j<v-1; j++){
+
+            for(int j = 0; j<v-1; j++) {
                 // find minimum distance when server capacity is not full
                 if(min > a[j]) {
                     if(!serverList.get(j).isFull()){
                         min = a[j]; 
                         minIndex = j;
-                    }else {
+                    } else {
                         // if server is full, add index to route
                         route.add(j);
                     }
@@ -192,7 +216,7 @@ public class Main {
             System.out.println();
             Server connected = serverList.get(minIndex);
             System.out.println("Current server: " + connected.name 
-            + connected.getCurrentCapacity() );
+                                                  + connected.getCurrentCapacity());
 
             System.out.print("Route: ");
             System.out.print("USER");
@@ -200,19 +224,22 @@ public class Main {
             System.out.println("");
 
             // remove vertex user dari graph
-            G.graph.remove(v-1);
-            G.V--;
+            graph.graph.remove(v-1);
+            graph.V--;
 
             System.out.println();
             scanner.nextLine();
         }
+
         waitForEnter();
 
     }
 
     static void removeUser() {
-        // print user list
+
+        // Print user list
         System.out.println("User List: "); 
+
         for (int i = 0; i<userList.size(); i++){
             System.out.println( (i+1) + ". " + userList.get(i).credential.username  + "\t"
             + userList.get(i).getServer(serverList));
@@ -225,21 +252,24 @@ public class Main {
 
         System.out.println(userList.get(option).credential.password);
         System.out.print("Password: ");
+
         String password = scanner.nextLine();
 
-        if (password.equals(userList.get(option).credential.password)){
-            System.out.println("Correct Password");
+        if (password.equals(userList.get(option).credential.password)) {
             User user = userList.get(option);
 
-            // decrement server capacity
+            System.out.println("Correct Password");
+
+            // Decrement server capacity
             serverList.get(user.serverIndex).current--;
 
-            // remove user from userList
+            // Remove user from userList
             userList.remove(option);
             
             waitForEnter();
 
         } else {
+
             System.out.println("Incorrect Password");
 
             waitForEnter();
@@ -247,18 +277,22 @@ public class Main {
 
     }
 
-    public static void waitForEnter(){
+    public static void waitForEnter() {
+
         System.out.print("Press Enter to continue . . .");
+
         scanner.nextLine();
     }
 
-    public static void ClearConsole(){
-        try{
-            String operatingSystem = System.getProperty("os.name"); //Check the current operating system
+    public static void ClearConsole() {
+        try {
+            // Check the current operating system.
+            String operatingSystem = System.getProperty("os.name"); 
               
             if(operatingSystem.contains("Windows")){        
                 ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "cls");
                 Process startProcess = pb.inheritIO().start();
+    
                 startProcess.waitFor();
             } else {
                 ProcessBuilder pb = new ProcessBuilder("clear");
@@ -266,7 +300,7 @@ public class Main {
 
                 startProcess.waitFor();
             } 
-        }catch(Exception e){
+        } catch(Exception e) {
             System.out.println(e);
         }
     }
